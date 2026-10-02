@@ -1,0 +1,15 @@
+dist/*.jar
+dist/*.sha256
+dist/kiosk-plugin-sdk-1.jar
+__pycache__/
+*.pyc
+
+.claude/
+.vscode/
+.codex/
+.remember/
+.playwright-mcp/
+.internal/
+benchmarks/
+
+AGENTS.md
