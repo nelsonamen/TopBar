@@ -115,7 +115,7 @@ public final class TopBarPlugin implements KioskPlugin {
         this.host = host;
         this.currentSettings = settings;
         if (host != null) {
-            host.log("Plugin TopBar v2026.10.1 started.");
+            host.log("Plugin TopBar started.");
             try {
                 host.subscribe("screensaver.state");
                 host.subscribe("screensaver.view");
