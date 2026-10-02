@@ -40,6 +40,7 @@ public final class TopBarPlugin implements KioskPlugin {
     private boolean isAppInForeground = true;
     private boolean isScreensaverActive = false;
     private boolean isDimMode = false;
+    private java.util.Set<String> subscribedEntities = new java.util.HashSet<>();
 
     private void setupLifecycleCallbacks(Context context) {
         if (context == null || lifecycleCallbacks != null) return;
@@ -82,6 +83,30 @@ public final class TopBarPlugin implements KioskPlugin {
         }
     }
 
+    private void updateSubscriptions() {
+        if (host == null) return;
+        java.util.Set<String> newEntities = new java.util.HashSet<>();
+        for (int i = 1; i <= 3; i++) {
+            String target = getSetting("btn" + i + "_target", "").trim();
+            if (!target.isEmpty() && target.contains(".")) {
+                newEntities.add(target);
+            }
+        }
+        
+        for (String oldEnt : subscribedEntities) {
+            if (!newEntities.contains(oldEnt)) {
+                try { host.unsubscribe("ha.entity." + oldEnt); } catch (Exception e) {}
+            }
+        }
+        
+        for (String newEnt : newEntities) {
+            if (!subscribedEntities.contains(newEnt)) {
+                try { host.subscribe("ha.entity." + newEnt); } catch (Exception e) {}
+            }
+        }
+        subscribedEntities = newEntities;
+    }
+
     @Override
     public synchronized void start(PluginHost host, Map<String, Object> settings) {
         this.host = host;
@@ -94,6 +119,7 @@ public final class TopBarPlugin implements KioskPlugin {
             } catch (Exception e) {
                 host.log("Warning: could not subscribe to screensaver events.");
             }
+            updateSubscriptions();
         }
         mainHandler.post(() -> {
             setupLifecycleCallbacks(getAndroidContext());
@@ -106,6 +132,7 @@ public final class TopBarPlugin implements KioskPlugin {
     @Override
     public synchronized void configure(Map<String, Object> settings) {
         this.currentSettings = settings;
+        updateSubscriptions();
         mainHandler.post(() -> {
             hideMenu();
             if (isAppInForeground && !isScreensaverActive) {
@@ -151,6 +178,17 @@ public final class TopBarPlugin implements KioskPlugin {
                 if (isAppInForeground && !isScreensaverActive) {
                     mainHandler.post(() -> { hideMenu(); showMenu(); });
                 }
+            }
+        } else if (event.startsWith("ks.ha.entity.")) {
+            String entityId = event.substring("ks.ha.entity.".length());
+            Object stateObj = payload != null ? payload.get("state") : null;
+            if (stateObj != null) {
+                String stateStr = stateObj.toString().toLowerCase();
+                mainHandler.post(() -> {
+                    if (webView != null) {
+                        webView.evaluateJavascript("if (typeof updateEntityState === 'function') { updateEntityState('" + entityId + "', '" + stateStr + "'); }", null);
+                    }
+                });
             }
         }
     }
@@ -261,7 +299,10 @@ public final class TopBarPlugin implements KioskPlugin {
             if (isActive) {
                 activeButtons++;
                 String iconClass = formatMdiIcon(iconVal.trim().isEmpty() ? "mdi-home" : iconVal);
-                buttonsHtml.append("<div class=\"icon-btn\" onclick=\"handleClick('btn").append(i).append("')\">")
+                buttonsHtml.append("<div class=\"icon-btn\" id=\"btn").append(i).append("\" ")
+                         .append("data-entity=\"").append(targetVal.trim()).append("\" ")
+                         .append("data-color=\"").append(colorVal).append("\" ")
+                         .append("onclick=\"handleClick('btn").append(i).append("')\">")
                          .append("<i class=\"mdi ").append(iconClass).append("\" style=\"color: ").append(colorVal).append(";\"></i>")
                          .append("</div>");
             }
@@ -349,6 +390,20 @@ public final class TopBarPlugin implements KioskPlugin {
                 "  if (now - lastClick < 1000) return;" +
                 "  lastClick = now;" +
                 "  Android.onClick(btn);" +
+                "}" +
+                "function updateEntityState(entityId, state) {" +
+                "  let btns = document.querySelectorAll('.icon-btn[data-entity=\"' + entityId + '\"]');" +
+                "  btns.forEach(btn => {" +
+                "    let icon = btn.querySelector('i');" +
+                "    let activeColor = btn.getAttribute('data-color');" +
+                "    if (state === 'on' || state === 'playing' || state === 'home' || state === 'open') {" +
+                "      icon.style.color = activeColor;" +
+                "    } else if (state === 'unavailable' || state === 'unknown') {" +
+                "      icon.style.color = 'rgba(150, 150, 150, 0.4)';" +
+                "    } else {" +
+                "      icon.style.color = '#757575';" +
+                "    }" +
+                "  });" +
                 "}" +
                 "</script>" +
                 "</head><body>" +
