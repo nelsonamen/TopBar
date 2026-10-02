@@ -89,7 +89,10 @@ public final class TopBarPlugin implements KioskPlugin {
         for (int i = 1; i <= 3; i++) {
             String target = getSetting("btn" + i + "_target", "").trim();
             if (!target.isEmpty() && target.contains(".")) {
-                newEntities.add(target);
+                String domain = target.split("\\.")[0].toLowerCase();
+                if (!domain.equals("script") && !domain.equals("scene") && !domain.equals("automation")) {
+                    newEntities.add(target);
+                }
             }
         }
         
@@ -299,8 +302,16 @@ public final class TopBarPlugin implements KioskPlugin {
             if (isActive) {
                 activeButtons++;
                 String iconClass = formatMdiIcon(iconVal.trim().isEmpty() ? "mdi-home" : iconVal);
+                String targetTrim = targetVal.trim();
+                String entityAttr = "";
+                if (!targetTrim.isEmpty() && targetTrim.contains(".")) {
+                    String domain = targetTrim.split("\\.")[0].toLowerCase();
+                    if (!domain.equals("script") && !domain.equals("scene") && !domain.equals("automation")) {
+                        entityAttr = targetTrim;
+                    }
+                }
                 buttonsHtml.append("<div class=\"icon-btn\" id=\"btn").append(i).append("\" ")
-                         .append("data-entity=\"").append(targetVal.trim()).append("\" ")
+                         .append("data-entity=\"").append(entityAttr).append("\" ")
                          .append("data-color=\"").append(colorVal).append("\" ")
                          .append("onclick=\"handleClick('btn").append(i).append("')\">")
                          .append("<i class=\"mdi ").append(iconClass).append("\" style=\"color: ").append(colorVal).append(";\"></i>")
