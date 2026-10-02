@@ -1,0 +1,5 @@
+<svg viewBox="0 0 240 144" xmlns="http://www.w3.org/2000/svg">
+<text x="112" y="86" text-anchor="middle" fill="white" font-family="Arial,Helvetica,sans-serif" font-size="92" font-weight="900" font-style="italic" letter-spacing="-9">DVD</text>
+<path fill="white" fill-rule="evenodd" d="M9 109a111 17 0 1 0 222 0a111 17 0 1 0-222 0 M92 109a28 6 0 1 0 56 0a28 6 0 1 0-56 0"/>
+<text x="124" y="141" text-anchor="middle" fill="white" font-family="Arial,Helvetica,sans-serif" font-size="15" letter-spacing="10">VIDEO</text>
+</svg>
