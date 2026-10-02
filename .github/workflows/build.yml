@@ -38,6 +38,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload "$GITHUB_REF_NAME" \
-            dist/*.zip \
-            dist/*.zip.sha256 \
+            "dist/top-bar-$GITHUB_REF_NAME.zip" \
+            "dist/top-bar-$GITHUB_REF_NAME.zip.sha256" \
             dist/kiosk-satellite-plugin.json --clobber
