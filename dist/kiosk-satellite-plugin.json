@@ -24,11 +24,6 @@
       "type": "string", "default": ""
     },
     {
-      "id": "orientation", "key": "orientation", "name": "orientation",
-      "title": "Orientation", "label": "Orientation",
-      "type": "select", "options": ["Horizontal", "Vertical"], "default": "Horizontal"
-    },
-    {
       "id": "menu_position", "key": "menu_position", "name": "menu_position",
       "title": "Position", "label": "Position",
       "type": "select", "options": ["Center", "Left", "Right"], "default": "Right"

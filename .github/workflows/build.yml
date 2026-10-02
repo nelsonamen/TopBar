@@ -32,7 +32,7 @@ jobs:
       - name: Test
         run: python3 tools/test.py
       - name: Build
-        run: python3 tools/build.py --android-platform 35 --version "${GITHUB_REF_NAME#v}"
+        run: python3 tools/build.py --android-platform 35 --version "$GITHUB_REF_NAME"
       - name: Attach plugin assets to the release
         env:
           GH_TOKEN: ${{ github.token }}

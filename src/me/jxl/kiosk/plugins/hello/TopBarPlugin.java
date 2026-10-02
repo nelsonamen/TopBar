@@ -326,39 +326,23 @@ public final class TopBarPlugin implements KioskPlugin {
                      .append("</div>");
         }
 
-        // Keep recognizing bilingual values saved by older plugin versions.
-        String orientation = getSetting("orientation", "Horizontal");
+        // Always horizontal
         String align = getSetting("menu_position", "Right");
-        boolean isVertical = "Vertical".equalsIgnoreCase(orientation);
+        boolean isLeft  = align.contains("Left")  || align.contains("Esquerda");
+        boolean isRight = align.contains("Right") || align.contains("Direita");
 
         int gravity;
         int xOffset = 0;
-        int yOffset = 0;
+        int yOffset = dpToPx(context, 30);
 
-        boolean isLeft   = align.contains("Left") || align.contains("Esquerda");
-        boolean isRight  = align.contains("Right") || align.contains("Direita");
-
-        if (isVertical) {
-            if (isLeft) {
-                gravity = Gravity.START | Gravity.CENTER_VERTICAL;
-                xOffset = dpToPx(context, 12);
-            } else if (isRight) {
-                gravity = Gravity.END | Gravity.CENTER_VERTICAL;
-                xOffset = dpToPx(context, 12);
-            } else {
-                gravity = Gravity.CENTER;
-            }
+        if (isLeft) {
+            gravity = Gravity.BOTTOM | Gravity.START;
+            xOffset = dpToPx(context, 12);
+        } else if (isRight) {
+            gravity = Gravity.BOTTOM | Gravity.END;
+            xOffset = dpToPx(context, 12);
         } else {
-            yOffset = dpToPx(context, 30);
-            if (isLeft) {
-                gravity = Gravity.BOTTOM | Gravity.START;
-                xOffset = dpToPx(context, 12);
-            } else if (isRight) {
-                gravity = Gravity.BOTTOM | Gravity.END;
-                xOffset = dpToPx(context, 12);
-            } else {
-                gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-            }
+            gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
         }
 
         // Scale
@@ -366,8 +350,6 @@ public final class TopBarPlugin implements KioskPlugin {
         float scaleFactor = 1.0f;
         if ("80%".equals(scaleStr)) scaleFactor = 0.8f;
         else if ("120%".equals(scaleStr)) scaleFactor = 1.2f;
-
-        String flexDirection = isVertical ? "column" : "row";
 
         String pillBg, pillBorder, iconBtnBg, iconBtnActive, iconBtnOutline;
         if (isDimMode) {
@@ -389,7 +371,7 @@ public final class TopBarPlugin implements KioskPlugin {
                 "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css\">" +
                 "<style>" +
                 "html, body { margin: 0; padding: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; -webkit-tap-highlight-color: transparent; transition: opacity 0.5s ease; }" +
-                ".pill { background: " + pillBg + "; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid " + pillBorder + "; border-radius: 36px; padding: 10px 14px; display: flex; flex-direction: " + flexDirection + "; gap: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.22); transform: scale(" + scaleFactor + "); transform-origin: center; transition: background 0.4s ease; }" +
+                ".pill { background: " + pillBg + "; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid " + pillBorder + "; border-radius: 36px; padding: 10px 14px; display: flex; flex-direction: row; gap: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.22); transform: scale(" + scaleFactor + "); transform-origin: center; transition: background 0.4s ease; }" +
                 ".icon-btn { width: 52px; height: 52px; border-radius: 26px; display: flex; justify-content: center; align-items: center; font-size: 28px; background: " + iconBtnBg + "; box-shadow: inset 0 0 0 1px " + iconBtnOutline + "; transition: background 0.2s, transform 0.1s; cursor: pointer; }" +
                 ".icon-btn:active { background: " + iconBtnActive + "; transform: scale(0.90); }" +
                 ".mdi { line-height: 1; }" +
@@ -436,14 +418,8 @@ public final class TopBarPlugin implements KioskPlugin {
         int paddingH = 28; // 14dp each side
         int paddingV = 20; // 10dp each side
 
-        int basePillWidth, basePillHeight;
-        if (isVertical) {
-            basePillWidth  = btnSize + paddingH + 8; // extra margin
-            basePillHeight = (btnSize * activeButtons) + (gapSize * (activeButtons - 1)) + paddingV * 2;
-        } else {
-            basePillWidth  = (btnSize * activeButtons) + (gapSize * (activeButtons - 1)) + paddingH * 2;
-            basePillHeight = btnSize + paddingV * 2;
-        }
+        int basePillWidth  = (btnSize * activeButtons) + (gapSize * (activeButtons - 1)) + paddingH * 2;
+        int basePillHeight = btnSize + paddingV * 2;
 
         int finalWidth  = Math.round(dpToPx(context, basePillWidth)  * scaleFactor);
         int finalHeight = Math.round(dpToPx(context, basePillHeight) * scaleFactor);
