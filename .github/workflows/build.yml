@@ -29,8 +29,8 @@ jobs:
         uses: android-actions/setup-android@v4
       - name: Install Android build tools
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
-      - name: Test
-        run: python3 tools/test.py
+      - name: Validate manifest and assets
+        run: python3 tools/test_plugin_manifest.py && python3 tools/test_plugin_assets.py
       - name: Build
         run: python3 tools/build.py --android-platform 35 --version "$GITHUB_REF_NAME"
       - name: Attach plugin assets to the release
