@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "apiVersion": 1,
+  "id": "shizuku-example",
+  "name": "Shizuku Example",
+  "version": "1.0.0",
+  "minAndroidSdk": 24,
+  "entryClass": "example.kiosk.ShizukuPlugin",
+  "description": "Read the Shizuku process identity without changing device settings.",
+  "author": "Kiosk Satellite contributors",
+  "license": "Apache-2.0",
+  "capabilities": [
+    "shizuku",
+    "entities"
+  ],
+  "settings": [],
+  "commands": []
+}
