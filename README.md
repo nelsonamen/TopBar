@@ -22,7 +22,7 @@ It seamlessly integrates with Home Assistant to display customizable action butt
 
 | Light Theme | Dark Theme |
 | :---: | :---: |
-| ![Light Theme](https://ai-code-interpreter.usercontent.google.com/usercontent/0?file=image0.png) | ![Dark Theme](https://ai-code-interpreter.usercontent.google.com/usercontent/0?file=image1.png) |
+| ![Light Theme](assets/topbar-light.svg) | ![Dark Theme](assets/topbar-dark.svg) |
 
 ---
 
