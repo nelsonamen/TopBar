@@ -3,7 +3,7 @@
   "id": "top-bar",
   "name": "TopBar",
   "title": "TopBar",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "apiVersion": 1,
   "author": "Nelson",
   "license": "MIT",
@@ -22,6 +22,11 @@
       "id": "ha_token", "key": "ha_token", "name": "ha_token",
       "title": "HA Token", "label": "HA Token",
       "type": "string", "default": ""
+    },
+    {
+      "id": "theme", "key": "theme", "name": "theme",
+      "title": "Theme", "label": "Theme",
+      "type": "select", "options": ["Auto (System)", "Dark", "Light"], "default": "Auto (System)"
     },
     {
       "id": "menu_position", "key": "menu_position", "name": "menu_position",

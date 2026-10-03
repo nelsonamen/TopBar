@@ -22,7 +22,9 @@ import android.widget.FrameLayout;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import me.jxl.kiosk.plugins.KioskPlugin;
 import me.jxl.kiosk.plugins.PluginHost;
@@ -40,7 +42,7 @@ public final class TopBarPlugin implements KioskPlugin {
     private boolean isAppInForeground = true;
     private boolean isScreensaverActive = false;
     private boolean isDimMode = false;
-    private java.util.Set<String> subscribedEntities = new java.util.HashSet<>();
+    private Set<String> subscribedEntities = new HashSet<>();
 
     private void setupLifecycleCallbacks(Context context) {
         if (context == null || lifecycleCallbacks != null) return;
@@ -85,7 +87,7 @@ public final class TopBarPlugin implements KioskPlugin {
 
     private void updateSubscriptions() {
         if (host == null) return;
-        java.util.Set<String> newEntities = new java.util.HashSet<>();
+        Set<String> newEntities = new HashSet<>();
         for (int i = 1; i <= 3; i++) {
             String target = getSetting("btn" + i + "_target", "").trim();
             if (!target.isEmpty() && target.contains(".")) {
@@ -245,12 +247,53 @@ public final class TopBarPlugin implements KioskPlugin {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
     }
 
+    private boolean checkDarkMode(Context context) {
+        String themeSetting = getSetting("theme", "Auto (System)").toLowerCase();
+        if (themeSetting.contains("light") || themeSetting.contains("claro")) {
+            return false;
+        }
+        if (themeSetting.contains("dark") || themeSetting.contains("escuro")) {
+            return true;
+        }
+        if (isDimMode) {
+            return true;
+        }
+        if (context != null) {
+            try {
+                int uiMode = context.getResources().getConfiguration().uiMode;
+                if ((uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES) {
+                    return true;
+                }
+            } catch (Exception e) {}
+        }
+        return false;
+    }
+
     @SuppressLint({"SetJavaScriptEnabled"})
     private void showMenu() {
         hideMenu();
 
         Context context = getAndroidContext();
         if (context == null) return;
+
+        boolean isDark = checkDarkMode(context);
+
+        String pillBg, pillBorder, iconBtnBg, iconBtnActive, iconBtnOutline, offIconColor;
+        if (isDark) {
+            pillBg         = "rgba(18, 18, 20, 0.92)";
+            pillBorder     = "rgba(255, 255, 255, 0.14)";
+            iconBtnBg      = "rgba(255, 255, 255, 0.08)";
+            iconBtnActive  = "rgba(255, 255, 255, 0.25)";
+            iconBtnOutline = "rgba(255, 255, 255, 0.08)";
+            offIconColor   = "rgba(255, 255, 255, 0.65)";
+        } else {
+            pillBg         = "rgba(255, 255, 255, 0.94)";
+            pillBorder     = "rgba(0, 0, 0, 0.08)";
+            iconBtnBg      = "rgba(0, 0, 0, 0.03)";
+            iconBtnActive  = "rgba(0, 0, 0, 0.12)";
+            iconBtnOutline = "rgba(0, 0, 0, 0.06)";
+            offIconColor   = "#757575";
+        }
 
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
@@ -310,11 +353,14 @@ public final class TopBarPlugin implements KioskPlugin {
                         entityAttr = targetTrim;
                     }
                 }
+                boolean isStateful = !entityAttr.isEmpty();
+                String initialColor = isStateful ? offIconColor : colorVal;
+
                 buttonsHtml.append("<div class=\"icon-btn\" id=\"btn").append(i).append("\" ")
                          .append("data-entity=\"").append(entityAttr).append("\" ")
                          .append("data-color=\"").append(colorVal).append("\" ")
                          .append("onclick=\"handleClick('btn").append(i).append("')\">")
-                         .append("<i class=\"mdi ").append(iconClass).append("\" style=\"color: ").append(colorVal).append(";\"></i>")
+                         .append("<i class=\"mdi ").append(iconClass).append("\" style=\"color: ").append(initialColor).append(";\"></i>")
                          .append("</div>");
             }
         }
@@ -351,21 +397,6 @@ public final class TopBarPlugin implements KioskPlugin {
         if ("80%".equals(scaleStr)) scaleFactor = 0.8f;
         else if ("120%".equals(scaleStr)) scaleFactor = 1.2f;
 
-        String pillBg, pillBorder, iconBtnBg, iconBtnActive, iconBtnOutline;
-        if (isDimMode) {
-            pillBg      = "rgba(15, 15, 15, 0.92)";
-            pillBorder  = "rgba(255,255,255,0.10)";
-            iconBtnBg   = "rgba(255,255,255,0.07)";
-            iconBtnActive = "rgba(255,255,255,0.25)";
-            iconBtnOutline = "rgba(255,255,255,0.06)";
-        } else {
-            pillBg      = "rgba(255, 255, 255, 0.94)";
-            pillBorder  = "rgba(0,0,0,0.08)";
-            iconBtnBg   = "rgba(0,0,0,0.03)";
-            iconBtnActive = "rgba(0,0,0,0.12)";
-            iconBtnOutline = "rgba(0,0,0,0.06)";
-        }
-
         String html = "<html><head>" +
                 "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0\"/>" +
                 "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css\">" +
@@ -392,9 +423,9 @@ public final class TopBarPlugin implements KioskPlugin {
                 "    if (state === 'on' || state === 'playing' || state === 'home' || state === 'open') {" +
                 "      icon.style.color = activeColor;" +
                 "    } else if (state === 'unavailable' || state === 'unknown') {" +
-                "      icon.style.color = 'rgba(150, 150, 150, 0.4)';" +
+                "      icon.style.color = '" + (isDark ? "rgba(255, 255, 255, 0.3)" : "rgba(150, 150, 150, 0.4)") + "';" +
                 "    } else {" +
-                "      icon.style.color = '#757575';" +
+                "      icon.style.color = '" + offIconColor + "';" +
                 "    }" +
                 "  });" +
                 "}" +
