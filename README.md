@@ -18,6 +18,14 @@ It seamlessly integrates with Home Assistant to display customizable action butt
 
 ---
 
+## 🎨 Appearance (Light & Dark Theme)
+
+| Light Theme | Dark Theme |
+| :---: | :---: |
+| ![Light Theme](https://ai-code-interpreter.usercontent.google.com/usercontent/0?file=image0.png) | ![Dark Theme](https://ai-code-interpreter.usercontent.google.com/usercontent/0?file=image1.png) |
+
+---
+
 ## 🛠️ Requirements
 
 - [Kiosk Satellite](https://github.com/jxlarrea/kiosk-satellite) (Android SDK 26+)
