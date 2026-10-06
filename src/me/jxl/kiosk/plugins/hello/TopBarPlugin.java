@@ -333,16 +333,10 @@ public final class TopBarPlugin implements KioskPlugin {
                     return true;
                 }
             }
-            if (parts.length >= 3) {
-                String target = parts[2].trim().toLowerCase();
-                if (target.contains("spotify") || target.contains("nzb360") || target.contains("hide")) {
-                    return true;
-                }
-            }
         } else {
             String target = getSetting(btnKey + "_target", "").toLowerCase();
             String icon = getSetting(btnKey + "_icon", "").toLowerCase();
-            if (target.contains("spotify") || target.contains("nzb360") || icon.contains("spotify") || target.contains("hide")) {
+            if (target.contains("hide") || icon.contains("hide")) {
                 return true;
             }
         }
