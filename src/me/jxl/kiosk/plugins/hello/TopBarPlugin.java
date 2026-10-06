@@ -44,6 +44,27 @@ public final class TopBarPlugin implements KioskPlugin {
     private boolean isDimMode = false;
     private Set<String> subscribedEntities = new HashSet<>();
     private Map<String, String> entityStates = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.concurrent.ExecutorService httpExecutor = java.util.concurrent.Executors.newSingleThreadExecutor();
+    private String cachedMdiCss = null;
+
+    private String getMdiStyleTag() {
+        if (cachedMdiCss != null) {
+            return "<style>" + cachedMdiCss + "</style>";
+        }
+        try (java.io.InputStream is = TopBarPlugin.class.getResourceAsStream("/assets/materialdesignicons.min.css")) {
+            if (is != null) {
+                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = is.read(buf)) != -1) {
+                    baos.write(buf, 0, n);
+                }
+                cachedMdiCss = baos.toString("UTF-8");
+                return "<style>" + cachedMdiCss + "</style>";
+            }
+        } catch (Exception e) {}
+        return "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css\">";
+    }
 
     private void setupLifecycleCallbacks(Context context) {
         if (context == null || lifecycleCallbacks != null) return;
@@ -188,8 +209,32 @@ public final class TopBarPlugin implements KioskPlugin {
             boolean nowDim = "dim".equals(viewObj);
             if (nowDim != isDimMode) {
                 isDimMode = nowDim;
-                // Refrescar a pill com as cores corretas
-                if (isAppInForeground && !isScreensaverActive) {
+                Context context = getAndroidContext();
+                boolean isDark = checkDarkMode(context);
+                if (webView != null && isAppInForeground && !isScreensaverActive) {
+                    String pillBg, pillBorder, iconBtnBg, iconBtnActive, iconBtnOutline, offIconColor;
+                    if (isDark) {
+                        pillBg         = "rgba(18, 18, 20, 0.92)";
+                        pillBorder     = "rgba(255, 255, 255, 0.14)";
+                        iconBtnBg      = "rgba(255, 255, 255, 0.08)";
+                        iconBtnActive  = "rgba(255, 255, 255, 0.25)";
+                        iconBtnOutline = "rgba(255, 255, 255, 0.08)";
+                        offIconColor   = "rgba(255, 255, 255, 0.65)";
+                    } else {
+                        pillBg         = "rgba(255, 255, 255, 0.94)";
+                        pillBorder     = "rgba(0, 0, 0, 0.08)";
+                        iconBtnBg      = "rgba(0, 0, 0, 0.03)";
+                        iconBtnActive  = "rgba(0, 0, 0, 0.12)";
+                        iconBtnOutline = "rgba(0, 0, 0, 0.06)";
+                        offIconColor   = "#757575";
+                    }
+                    String js = "if (typeof applyTheme === 'function') { applyTheme(" + isDark + ", '" + pillBg + "', '" + pillBorder + "', '" + iconBtnBg + "', '" + iconBtnActive + "', '" + iconBtnOutline + "', '" + offIconColor + "'); }";
+                    mainHandler.post(() -> {
+                        if (webView != null) {
+                            webView.evaluateJavascript(js, null);
+                        }
+                    });
+                } else if (isAppInForeground && !isScreensaverActive) {
                     mainHandler.post(() -> { hideMenu(); showMenu(); });
                 }
             }
@@ -272,7 +317,36 @@ public final class TopBarPlugin implements KioskPlugin {
                 lifecycleCallbacks = null;
             }
         });
+        try {
+            httpExecutor.shutdown();
+        } catch (Exception e) {}
         host = null;
+    }
+
+    private boolean checkShouldHide(String btnKey) {
+        String compactVal = getSetting(btnKey, "");
+        if (!compactVal.trim().isEmpty() && compactVal.contains("|")) {
+            String[] parts = compactVal.split("\\|");
+            if (parts.length >= 4) {
+                String opt = parts[3].trim().toLowerCase();
+                if (opt.contains("hide") || opt.contains("esconder")) {
+                    return true;
+                }
+            }
+            if (parts.length >= 3) {
+                String target = parts[2].trim().toLowerCase();
+                if (target.contains("spotify") || target.contains("nzb360") || target.contains("hide")) {
+                    return true;
+                }
+            }
+        } else {
+            String target = getSetting(btnKey + "_target", "").toLowerCase();
+            String icon = getSetting(btnKey + "_icon", "").toLowerCase();
+            if (target.contains("spotify") || target.contains("nzb360") || icon.contains("spotify") || target.contains("hide")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void hideMenu() {
@@ -472,12 +546,12 @@ public final class TopBarPlugin implements KioskPlugin {
 
         String html = "<html><head>" +
                 "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0\"/>" +
-                "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css\">" +
+                getMdiStyleTag() +
                 "<style>" +
                 "html, body { margin: 0; padding: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; -webkit-tap-highlight-color: transparent; transition: opacity 0.5s ease; }" +
-                ".pill { background: " + pillBg + "; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid " + pillBorder + "; border-radius: 36px; padding: 10px 14px; display: flex; flex-direction: row; gap: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.22); transform: scale(" + scaleFactor + "); transform-origin: center; transition: background 0.4s ease; }" +
-                ".icon-btn { width: 52px; height: 52px; border-radius: 26px; display: flex; justify-content: center; align-items: center; font-size: 28px; background: " + iconBtnBg + "; box-shadow: inset 0 0 0 1px " + iconBtnOutline + "; transition: background 0.2s, transform 0.1s; cursor: pointer; }" +
-                ".icon-btn:active { background: " + iconBtnActive + "; transform: scale(0.90); }" +
+                ".pill { background: " + pillBg + "; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid " + pillBorder + "; border-radius: 36px; padding: 10px 14px; display: flex; flex-direction: row; gap: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.22); transform: scale(" + scaleFactor + "); transform-origin: center; transition: background 0.4s ease, border-color 0.4s ease; }" +
+                ".icon-btn { width: 52px; height: 52px; border-radius: 26px; display: flex; justify-content: center; align-items: center; font-size: 28px; background: " + iconBtnBg + "; box-shadow: inset 0 0 0 1px " + iconBtnOutline + "; transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s ease, box-shadow 0.2s ease; cursor: pointer; user-select: none; -webkit-user-select: none; }" +
+                ".icon-btn:active { background: " + iconBtnActive + "; transform: scale(0.85); box-shadow: inset 0 2px 6px rgba(0,0,0,0.20); }" +
                 ".mdi { line-height: 1; }" +
                 "</style>" +
                 "<script>" +
@@ -487,6 +561,18 @@ public final class TopBarPlugin implements KioskPlugin {
                 "  if (now - lastClick < 1000) return;" +
                 "  lastClick = now;" +
                 "  Android.onClick(btn);" +
+                "}" +
+                "function applyTheme(isDark, pillBg, pillBorder, iconBtnBg, iconBtnActive, iconBtnOutline, offIconColor) {" +
+                "  let pill = document.querySelector('.pill');" +
+                "  if (pill) {" +
+                "    pill.style.background = pillBg;" +
+                "    pill.style.borderColor = pillBorder;" +
+                "  }" +
+                "  let iconBtns = document.querySelectorAll('.icon-btn');" +
+                "  iconBtns.forEach(btn => {" +
+                "    btn.style.background = iconBtnBg;" +
+                "    btn.style.boxShadow = 'inset 0 0 0 1px ' + iconBtnOutline;" +
+                "  });" +
                 "}" +
                 "function updateEntityState(entityId, state) {" +
                 "  let btns = document.querySelectorAll('.icon-btn[data-entity=\"' + entityId + '\"]');" +
@@ -586,18 +672,15 @@ public final class TopBarPlugin implements KioskPlugin {
         public void onClick(String btn) {
             mainHandler.post(() -> {
                 String target = "";
-                String iconVal = "";
                 String compactVal = getSetting(btn, "");
                 if (!compactVal.trim().isEmpty() && compactVal.contains("|")) {
                     String[] parts = compactVal.split("\\|");
-                    if (parts.length >= 1) iconVal = parts[0].trim();
                     if (parts.length >= 3) target = parts[2].trim();
                 } else {
-                    iconVal = getSetting(btn + "_icon", "");
                     target = getSetting(btn + "_target", "");
                 }
 
-                if (iconVal.toLowerCase().contains("spotify") || target.toLowerCase().contains("spotify")) {
+                if (checkShouldHide(btn)) {
                     hideMenu();
                 }
                 if (!target.isEmpty()) {
@@ -621,7 +704,7 @@ public final class TopBarPlugin implements KioskPlugin {
             return;
         }
 
-        new Thread(() -> {
+        httpExecutor.execute(() -> {
             HttpURLConnection conn = null;
             try {
                 String trimmedTarget = target.trim();
@@ -694,7 +777,7 @@ public final class TopBarPlugin implements KioskPlugin {
                     conn.disconnect();
                 }
             }
-        }).start();
+        });
     }
 
     @SuppressLint("PrivateApi")

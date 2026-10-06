@@ -33,11 +33,29 @@ In **Kiosk Satellite > Plugin Manager > TopBar**, you can configure:
 - **Theme**: `Auto (System)`, `Dark`, or `Light`.
 - **Position**: `Right`, `Left`, or `Center`.
 - **Size**: `80%`, `100%`, or `120%`.
-- **Buttons (Up to 5)**: Format as `Icon | Color | Action`
-  - Example: `mdi-home-import-outline | #4CAF50 | script.ligar_casa_diogo`
-  - Example: `mdi-lightbulb | #FFC107 | light.sala_de_estar`
+- **Buttons (Up to 5)**: Format as `Icon | Color | Action` (optionally append `| hide` to auto-dismiss the menu).
+  - Standard (stays visible): `mdi-home-import-outline | #4CAF50 | script.ligar_casa_diogo`
+  - App Launcher (auto-hides menu): `mdi-spotify | #1DB954 | script.abrir_spotify_no_tablet | hide`
 
-> **Note:** The floating control bar automatically adjusts its width to match the exact number of active buttons configured (from 1 up to 5).
+> **Note:** The floating control bar automatically adjusts its width to match the exact number of active buttons configured (from 1 up to 5). Adding `| hide` at the end of a button string instantly dismisses the menu when tapped (ideal for launching apps or full-screen views).
+
+---
+
+## 📱 Launching Android Apps on Kiosk Satellite via Home Assistant
+
+To launch Android apps (like Spotify, NZB360, etc.) from Home Assistant and automatically hide the TopBar menu, create a script in Home Assistant:
+
+```yaml
+alias: "Abrir Spotify Kiosk"
+sequence:
+  - action: esphome.ks_casa_launch_app
+    data:
+      package_name: com.spotify.music
+description: "Launches an Android application on the kiosk tablet."
+```
+
+Then configure your TopBar button with `| hide` at the end:
+`mdi-spotify | #1DB954 | script.abrir_spotify_no_tablet | hide`
 
 ---
 
