@@ -14,7 +14,7 @@ It seamlessly integrates with Home Assistant to display customizable action butt
 - **Stateless Actions**: Scripts, scenes, and automations maintain their configured accent color.
 - **Auto-Hide & Foreground Detection**: Automatically hides when navigating to background apps or when screensaver activates, ensuring no interference with other applications.
 - **Day/Night Theme Sync**: Automatically switches between dark and light themes based on Kiosk Satellite screen/dimmer state.
-- **Customizable**: Adjustable position (Left, Center, Right), size scaling (80%, 100%, 120%), and custom MDI icons/colors for up to 3 buttons.
+- **Customizable**: Adjustable position (Left, Center, Right), size scaling (80%, 100%, 120%), theme selection (Auto, Dark, Light), and custom MDI icons/colors for up to 5 buttons with dynamic width auto-scaling.
 
 ---
 
@@ -23,6 +23,21 @@ It seamlessly integrates with Home Assistant to display customizable action butt
 | Light Theme | Dark Theme |
 | :---: | :---: |
 | ![Light Theme](assets/topbar-light.png) | ![Dark Theme](assets/topbar-dark.png) |
+
+---
+
+## ⚙️ Configuration
+
+In **Kiosk Satellite > Plugin Manager > TopBar**, you can configure:
+
+- **Theme**: `Auto (System)`, `Dark`, or `Light`.
+- **Position**: `Right`, `Left`, or `Center`.
+- **Size**: `80%`, `100%`, or `120%`.
+- **Buttons (Up to 5)**: Format as `Icon | Color | Action`
+  - Example: `mdi-home-import-outline | #4CAF50 | script.ligar_casa_diogo`
+  - Example: `mdi-lightbulb | #FFC107 | light.sala_de_estar`
+
+> **Note:** The floating control bar automatically adjusts its width to match the exact number of active buttons configured (from 1 up to 5).
 
 ---
 
