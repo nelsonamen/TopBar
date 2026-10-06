@@ -3,14 +3,14 @@
   "id": "top-bar",
   "name": "TopBar",
   "title": "TopBar",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "apiVersion": 1,
   "author": "Nelson",
   "license": "MIT",
   "entryClass": "me.jxl.kiosk.plugins.hello.TopBarPlugin",
   "main": "me.jxl.kiosk.plugins.hello.TopBarPlugin",
   "minAndroidSdk": 26,
-  "description": "Floating control bar with auto-hide, day/night mode and Home Assistant actions.",
+  "description": "Floating control bar with auto-hide, day/night mode and Home Assistant actions. Format: Icon | Color | Action",
   "capabilities": ["host.read"],
   "settings": [
     {
@@ -40,27 +40,28 @@
     },
     {
       "id": "btn1", "key": "btn1", "name": "btn1",
-      "title": "Button 1 (Icon | Color | Action)", "label": "Button 1 (Icon | Color | Action)",
+      "title": "Button 1", "label": "Button 1",
+      "description": "Format: Icon | Color | Action",
       "type": "string", "default": "mdi-home-import-outline | #4CAF50 | script.ligar_casa_diogo"
     },
     {
       "id": "btn2", "key": "btn2", "name": "btn2",
-      "title": "Button 2 (Icon | Color | Action)", "label": "Button 2 (Icon | Color | Action)",
+      "title": "Button 2", "label": "Button 2",
       "type": "string", "default": "mdi-home-export-outline | #F44336 | script.desligar_tudo_teste"
     },
     {
       "id": "btn3", "key": "btn3", "name": "btn3",
-      "title": "Button 3 (Icon | Color | Action)", "label": "Button 3 (Icon | Color | Action)",
+      "title": "Button 3", "label": "Button 3",
       "type": "string", "default": "mdi-spotify | #1DB954 | script.abrir_spotify_no_tablet"
     },
     {
       "id": "btn4", "key": "btn4", "name": "btn4",
-      "title": "Button 4 (Icon | Color | Action)", "label": "Button 4 (Icon | Color | Action)",
+      "title": "Button 4", "label": "Button 4",
       "type": "string", "default": ""
     },
     {
       "id": "btn5", "key": "btn5", "name": "btn5",
-      "title": "Button 5 (Icon | Color | Action)", "label": "Button 5 (Icon | Color | Action)",
+      "title": "Button 5", "label": "Button 5",
       "type": "string", "default": ""
     }
   ],
