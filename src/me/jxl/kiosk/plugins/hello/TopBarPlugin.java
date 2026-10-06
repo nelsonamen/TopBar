@@ -43,6 +43,7 @@ public final class TopBarPlugin implements KioskPlugin {
     private boolean isScreensaverActive = false;
     private boolean isDimMode = false;
     private Set<String> subscribedEntities = new HashSet<>();
+    private Map<String, String> entityStates = new java.util.concurrent.ConcurrentHashMap<>();
 
     private void setupLifecycleCallbacks(Context context) {
         if (context == null || lifecycleCallbacks != null) return;
@@ -197,11 +198,63 @@ public final class TopBarPlugin implements KioskPlugin {
             Object stateObj = payload != null ? payload.get("state") : null;
             if (stateObj != null) {
                 String stateStr = stateObj.toString().toLowerCase();
+                entityStates.put(entityId, stateStr);
                 mainHandler.post(() -> {
                     if (webView != null) {
                         webView.evaluateJavascript("if (typeof updateEntityState === 'function') { updateEntityState('" + entityId + "', '" + stateStr + "'); }", null);
                     }
                 });
+            }
+        }
+    }
+
+    private void fetchAndApplyEntityStates() {
+        if (host == null) return;
+        for (int i = 1; i <= 5; i++) {
+            String target = "";
+            String compactVal = getSetting("btn" + i, "");
+            if (!compactVal.trim().isEmpty() && compactVal.contains("|")) {
+                String[] parts = compactVal.split("\\|");
+                if (parts.length >= 3) target = parts[2].trim();
+            } else {
+                target = getSetting("btn" + i + "_target", "").trim();
+            }
+
+            if (!target.isEmpty() && target.contains(".")) {
+                String domain = target.split("\\.")[0].toLowerCase();
+                if (!domain.equals("script") && !domain.equals("scene") && !domain.equals("automation")) {
+                    final String entityId = target;
+
+                    // 1. Immediately apply cached state if available
+                    String cachedState = entityStates.get(entityId);
+                    if (cachedState != null && webView != null) {
+                        final String st = cachedState;
+                        mainHandler.post(() -> {
+                            if (webView != null) {
+                                webView.evaluateJavascript("if (typeof updateEntityState === 'function') { updateEntityState('" + entityId + "', '" + st + "'); }", null);
+                            }
+                        });
+                    }
+
+                    // 2. Query live state snapshot from Kiosk Satellite
+                    try {
+                        host.executeCommand("getHaEntityState", java.util.Collections.singletonMap("entityId", entityId), (ok, data, error) -> {
+                            if (ok && data instanceof Map) {
+                                Map<?, ?> map = (Map<?, ?>) data;
+                                Object stObj = map.get("state");
+                                if (stObj != null) {
+                                    String stStr = stObj.toString().toLowerCase();
+                                    entityStates.put(entityId, stStr);
+                                    mainHandler.post(() -> {
+                                        if (webView != null) {
+                                            webView.evaluateJavascript("if (typeof updateEntityState === 'function') { updateEntityState('" + entityId + "', '" + stStr + "'); }", null);
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    } catch (Exception e) {}
+                }
             }
         }
     }
@@ -457,6 +510,7 @@ public final class TopBarPlugin implements KioskPlugin {
                 "</body></html>";
 
         webView.loadDataWithBaseURL("https://localhost", html, "text/html", "UTF-8", null);
+        fetchAndApplyEntityStates();
         container.addView(webView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
         int layoutFlag = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
@@ -491,6 +545,7 @@ public final class TopBarPlugin implements KioskPlugin {
 
         try {
             windowManager.addView(container, params);
+            mainHandler.post(this::fetchAndApplyEntityStates);
         } catch (Exception e) {
             if (host != null) {
                 host.log("Error adding plugin window: " + e.getMessage());
@@ -624,6 +679,7 @@ public final class TopBarPlugin implements KioskPlugin {
                     if (host != null) {
                         host.log("Home Assistant action executed: " + trimmedTarget + " (HTTP " + code + ")");
                     }
+                    mainHandler.post(this::fetchAndApplyEntityStates);
                 } else {
                     if (host != null) {
                         host.log("Home Assistant error (" + code + ") executing " + trimmedTarget + " at " + serviceUrl);
