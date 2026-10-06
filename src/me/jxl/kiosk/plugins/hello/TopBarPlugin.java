@@ -87,9 +87,17 @@ public final class TopBarPlugin implements KioskPlugin {
 
     private void updateSubscriptions() {
         if (host == null) return;
-        Set<String> newEntities = new HashSet<>();
-        for (int i = 1; i <= 3; i++) {
-            String target = getSetting("btn" + i + "_target", "").trim();
+        java.util.Set<String> newEntities = new java.util.HashSet<>();
+        for (int i = 1; i <= 5; i++) {
+            String target = "";
+            String compactVal = getSetting("btn" + i, "");
+            if (!compactVal.trim().isEmpty() && compactVal.contains("|")) {
+                String[] parts = compactVal.split("\\|");
+                if (parts.length >= 3) target = parts[2].trim();
+            } else {
+                target = getSetting("btn" + i + "_target", "").trim();
+            }
+
             if (!target.isEmpty() && target.contains(".")) {
                 String domain = target.split("\\.")[0].toLowerCase();
                 if (!domain.equals("script") && !domain.equals("scene") && !domain.equals("automation")) {
@@ -312,33 +320,45 @@ public final class TopBarPlugin implements KioskPlugin {
 
         webView.addJavascriptInterface(new WebAppInterface(), "Android");
 
-        // Build dynamic buttons (1 to 3)
+        // Build dynamic buttons (1 to 5)
         StringBuilder buttonsHtml = new StringBuilder();
         int activeButtons = 0;
 
-        for (int i = 1; i <= 3; i++) {
-            String iconKey = "btn" + i + "_icon";
-            String colorKey = "btn" + i + "_color";
-            String targetKey = "btn" + i + "_target";
+        for (int i = 1; i <= 5; i++) {
+            String compactVal = getSetting("btn" + i, "");
+            String iconVal = "";
+            String colorVal = "";
+            String targetVal = "";
 
-            String defaultIcon = "";
-            String defaultTarget = "";
-            if (i == 1) {
-                defaultIcon = "mdi-home-import-outline";
-                defaultTarget = "script.ligar_casa_diogo";
-            } else if (i == 2) {
-                defaultIcon = "mdi-home-export-outline";
-                defaultTarget = "script.desligar_tudo_teste";
-            } else if (i == 3) {
-                defaultIcon = "mdi-spotify";
-                defaultTarget = "script.abrir_spotify_no_tablet";
+            if (!compactVal.trim().isEmpty() && compactVal.contains("|")) {
+                String[] parts = compactVal.split("\\|");
+                if (parts.length >= 1) iconVal = parts[0].trim();
+                if (parts.length >= 2) colorVal = parts[1].trim();
+                if (parts.length >= 3) targetVal = parts[2].trim();
+            } else {
+                String defaultIcon = "";
+                String defaultTarget = "";
+                if (i == 1) {
+                    defaultIcon = "mdi-home-import-outline";
+                    defaultTarget = "script.ligar_casa_diogo";
+                } else if (i == 2) {
+                    defaultIcon = "mdi-home-export-outline";
+                    defaultTarget = "script.desligar_tudo_teste";
+                } else if (i == 3) {
+                    defaultIcon = "mdi-spotify";
+                    defaultTarget = "script.abrir_spotify_no_tablet";
+                }
+
+                String defaultColor = i == 1 ? "#4CAF50" : (i == 2 ? "#F44336" : "#1DB954");
+
+                iconVal = getSetting("btn" + i + "_icon", defaultIcon);
+                colorVal = getSetting("btn" + i + "_color", defaultColor);
+                targetVal = getSetting("btn" + i + "_target", defaultTarget);
             }
 
-            String defaultColor = i == 1 ? "#4CAF50" : (i == 2 ? "#F44336" : "#1DB954");
-
-            String iconVal = getSetting(iconKey, defaultIcon);
-            String colorVal = getSetting(colorKey, defaultColor);
-            String targetVal = getSetting(targetKey, defaultTarget);
+            if (colorVal.isEmpty()) {
+                colorVal = "#4CAF50";
+            }
 
             boolean isActive = !iconVal.trim().isEmpty() || !targetVal.trim().isEmpty();
 
@@ -510,10 +530,19 @@ public final class TopBarPlugin implements KioskPlugin {
         @JavascriptInterface
         public void onClick(String btn) {
             mainHandler.post(() -> {
-                String target = getSetting(btn + "_target", "");
-                if ("btn3".equals(btn) &&
-                        (getSetting("btn3_icon", "").toLowerCase().contains("spotify") ||
-                                target.toLowerCase().contains("spotify"))) {
+                String target = "";
+                String iconVal = "";
+                String compactVal = getSetting(btn, "");
+                if (!compactVal.trim().isEmpty() && compactVal.contains("|")) {
+                    String[] parts = compactVal.split("\\|");
+                    if (parts.length >= 1) iconVal = parts[0].trim();
+                    if (parts.length >= 3) target = parts[2].trim();
+                } else {
+                    iconVal = getSetting(btn + "_icon", "");
+                    target = getSetting(btn + "_target", "");
+                }
+
+                if (iconVal.toLowerCase().contains("spotify") || target.toLowerCase().contains("spotify")) {
                     hideMenu();
                 }
                 if (!target.isEmpty()) {
