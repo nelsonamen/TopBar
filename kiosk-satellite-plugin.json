@@ -49,7 +49,7 @@
       "id": "theme", "key": "theme", "name": "theme",
       "title": "Theme", "label": "Theme",
       "group": "General Settings",
-      "type": "select", "options": ["Auto (System / KS)", "Dark", "Light"], "default": "Auto (System / KS)"
+      "type": "select", "options": ["Auto (System)", "Dark", "Light"], "default": "Auto (System)"
     },
     {
       "id": "menu_position", "key": "menu_position", "name": "menu_position",
@@ -57,11 +57,12 @@
       "group": "General Settings",
       "type": "select",
       "options": [
+        "Right", "Left", "Center",
         "Top Left", "Top Center", "Top Right",
         "Middle Left", "Middle Center", "Middle Right",
         "Bottom Left", "Bottom Center", "Bottom Right"
       ],
-      "default": "Bottom Right"
+      "default": "Right"
     },
     {
       "id": "scale", "key": "scale", "name": "scale",
@@ -72,7 +73,7 @@
     {
       "id": "btn1_icon", "key": "btn1_icon", "name": "btn1_icon",
       "title": "Icon", "label": "Icon",
-      "description": "Type any MDI icon (e.g. mdi:home, mdi:spotify, mdi:solar-power).",
+      "description": "E.g. mdi:home-import-outline, mdi:lightbulb or mdi:spotify",
       "group": "Button 1",
       "type": "string", "default": "mdi:home-import-outline"
     },
@@ -99,7 +100,7 @@
     {
       "id": "btn2_icon", "key": "btn2_icon", "name": "btn2_icon",
       "title": "Icon", "label": "Icon",
-      "description": "Type any MDI icon (e.g. mdi:home-export-outline, mdi:lightbulb).",
+      "description": "E.g. mdi:home-export-outline",
       "group": "Button 2",
       "type": "string", "default": "mdi:home-export-outline"
     },
@@ -126,7 +127,7 @@
     {
       "id": "btn3_icon", "key": "btn3_icon", "name": "btn3_icon",
       "title": "Icon", "label": "Icon",
-      "description": "Type any MDI icon (e.g. mdi:spotify, mdi:music).",
+      "description": "E.g. mdi:spotify",
       "group": "Button 3",
       "type": "string", "default": "mdi:spotify"
     },
@@ -153,7 +154,7 @@
     {
       "id": "btn4_icon", "key": "btn4_icon", "name": "btn4_icon",
       "title": "Icon", "label": "Icon",
-      "description": "Type any MDI icon (e.g. mdi:lightbulb, mdi:fan).",
+      "description": "E.g. mdi:lightbulb",
       "group": "Button 4",
       "type": "string", "default": ""
     },
@@ -180,7 +181,7 @@
     {
       "id": "btn5_icon", "key": "btn5_icon", "name": "btn5_icon",
       "title": "Icon", "label": "Icon",
-      "description": "Type any MDI icon (e.g. mdi:car, mdi:lock, mdi:power).",
+      "description": "E.g. mdi:fan",
       "group": "Button 5",
       "type": "string", "default": ""
     },
