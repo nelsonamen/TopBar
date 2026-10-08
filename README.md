@@ -99,6 +99,17 @@ Installing via GitHub repository enables automatic update checks directly inside
 
 ---
 
+## ☕ Support Development
+
+<div align="center">
+  <p>These projects are open source and will stay that way. If they've earned a coffee, the button's right here:</p>
+  <a href="https://www.buymeacoffee.com/nelsonamen" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;">
+  </a>
+</div>
+
+---
+
 ## 📄 License
 
 Distributed under the MIT License.
