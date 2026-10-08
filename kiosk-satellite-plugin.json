@@ -80,7 +80,7 @@
     {
       "id": "btn1_color", "key": "btn1_color", "name": "btn1_color",
       "title": "Color", "label": "Color",
-      "description": "Button active accent color (default: #4CAF50 - Green).",
+      "description": "Button active accent color.",
       "group": "Button 1",
       "type": "color", "default": "#4CAF50"
     },
@@ -108,7 +108,7 @@
     {
       "id": "btn2_color", "key": "btn2_color", "name": "btn2_color",
       "title": "Color", "label": "Color",
-      "description": "Button active accent color (default: #F44336 - Red).",
+      "description": "Button active accent color.",
       "group": "Button 2",
       "type": "color", "default": "#F44336"
     },
@@ -136,7 +136,7 @@
     {
       "id": "btn3_color", "key": "btn3_color", "name": "btn3_color",
       "title": "Color", "label": "Color",
-      "description": "Button active accent color (default: #1DB954 - Spotify Green).",
+      "description": "Button active accent color.",
       "group": "Button 3",
       "type": "color", "default": "#1DB954"
     },
@@ -164,7 +164,7 @@
     {
       "id": "btn4_color", "key": "btn4_color", "name": "btn4_color",
       "title": "Color", "label": "Color",
-      "description": "Button active accent color (default: #FFC107 - Yellow).",
+      "description": "Button active accent color.",
       "group": "Button 4",
       "type": "color", "default": "#FFC107"
     },
@@ -192,7 +192,7 @@
     {
       "id": "btn5_color", "key": "btn5_color", "name": "btn5_color",
       "title": "Color", "label": "Color",
-      "description": "Button active accent color (default: #03A9F4 - Blue).",
+      "description": "Button active accent color.",
       "group": "Button 5",
       "type": "color", "default": "#03A9F4"
     },
