@@ -3,70 +3,206 @@
   "id": "top-bar",
   "name": "TopBar",
   "title": "TopBar",
-  "version": "1.0.6",
+  "version": "2026.10.1",
   "apiVersion": 1,
   "author": "Nelson",
   "license": "MIT",
   "entryClass": "me.jxl.kiosk.plugins.hello.TopBarPlugin",
   "main": "me.jxl.kiosk.plugins.hello.TopBarPlugin",
   "minAndroidSdk": 26,
-  "description": "Floating control bar with auto-hide, day/night mode and Home Assistant actions.",
+  "description": "Control Bar for Home Assistant",
   "capabilities": ["host.read"],
+  "groups": [
+    {
+      "title": "General Settings"
+    },
+    {
+      "title": "Button 1"
+    },
+    {
+      "title": "Button 2"
+    },
+    {
+      "title": "Button 3"
+    },
+    {
+      "title": "Button 4"
+    },
+    {
+      "title": "Button 5"
+    }
+  ],
   "settings": [
     {
       "id": "ha_url", "key": "ha_url", "name": "ha_url",
       "title": "HA URL", "label": "HA URL",
+      "group": "General Settings",
       "type": "string", "default": "http://192.168.1.225:8123"
     },
     {
       "id": "ha_token", "key": "ha_token", "name": "ha_token",
       "title": "HA Token", "label": "HA Token",
+      "group": "General Settings",
       "type": "string", "default": ""
     },
     {
       "id": "theme", "key": "theme", "name": "theme",
       "title": "Theme", "label": "Theme",
-      "type": "select", "options": ["Auto (System)", "Dark", "Light"], "default": "Auto (System)"
+      "group": "General Settings",
+      "type": "select", "options": ["Auto (System / KS)", "Dark", "Light"], "default": "Auto (System / KS)"
     },
     {
       "id": "menu_position", "key": "menu_position", "name": "menu_position",
       "title": "Position", "label": "Position",
-      "type": "select", "options": ["Center", "Left", "Right"], "default": "Right"
+      "group": "General Settings",
+      "type": "select",
+      "options": [
+        "Top Left", "Top Center", "Top Right",
+        "Middle Left", "Middle Center", "Middle Right",
+        "Bottom Left", "Bottom Center", "Bottom Right"
+      ],
+      "default": "Bottom Right"
     },
     {
       "id": "scale", "key": "scale", "name": "scale",
       "title": "Size", "label": "Size",
+      "group": "General Settings",
       "type": "select", "options": ["80%", "100%", "120%"], "default": "100%"
     },
     {
-      "id": "btn1", "key": "btn1", "name": "btn1",
-      "title": "Button 1 (Icon | Color | Action | hide)", "label": "Button 1 (Icon | Color | Action | hide)",
-      "description": "Format: Icon | Color | Action [| hide]",
-      "type": "string", "default": "mdi-home-import-outline | #4CAF50 | script.ligar_casa_diogo"
+      "id": "btn1_icon", "key": "btn1_icon", "name": "btn1_icon",
+      "title": "Icon", "label": "Icon",
+      "description": "Type any MDI icon (e.g. mdi:home, mdi:spotify, mdi:solar-power).",
+      "group": "Button 1",
+      "type": "string", "default": "mdi:home-import-outline"
     },
     {
-      "id": "btn2", "key": "btn2", "name": "btn2",
-      "title": "Button 2 (Icon | Color | Action | hide)", "label": "Button 2 (Icon | Color | Action | hide)",
-      "description": "Format: Icon | Color | Action [| hide]",
-      "type": "string", "default": "mdi-home-export-outline | #F44336 | script.desligar_tudo_teste"
+      "id": "btn1_color", "key": "btn1_color", "name": "btn1_color",
+      "title": "Color", "label": "Color",
+      "group": "Button 1",
+      "type": "color", "default": "#4CAF50"
     },
     {
-      "id": "btn3", "key": "btn3", "name": "btn3",
-      "title": "Button 3 (Icon | Color | Action | hide)", "label": "Button 3 (Icon | Color | Action | hide)",
-      "description": "Format: Icon | Color | Action [| hide]",
-      "type": "string", "default": "mdi-spotify | #1DB954 | script.abrir_spotify_no_tablet | hide"
+      "id": "btn1_target", "key": "btn1_target", "name": "btn1_target",
+      "title": "Action / Entity", "label": "Action / Entity",
+      "description": "Choose a script, scene, light or switch entity.",
+      "group": "Button 1",
+      "type": "entity", "default": "script.ligar_casa_diogo"
     },
     {
-      "id": "btn4", "key": "btn4", "name": "btn4",
-      "title": "Button 4 (Icon | Color | Action | hide)", "label": "Button 4 (Icon | Color | Action | hide)",
-      "description": "Format: Icon | Color | Action [| hide]",
+      "id": "btn1_hide", "key": "btn1_hide", "name": "btn1_hide",
+      "title": "Hide Menu on Click", "label": "Hide Menu on Click",
+      "description": "Automatically hides the bar when tapped.",
+      "group": "Button 1",
+      "type": "boolean", "default": false
+    },
+    {
+      "id": "btn2_icon", "key": "btn2_icon", "name": "btn2_icon",
+      "title": "Icon", "label": "Icon",
+      "description": "Type any MDI icon (e.g. mdi:home-export-outline, mdi:lightbulb).",
+      "group": "Button 2",
+      "type": "string", "default": "mdi:home-export-outline"
+    },
+    {
+      "id": "btn2_color", "key": "btn2_color", "name": "btn2_color",
+      "title": "Color", "label": "Color",
+      "group": "Button 2",
+      "type": "color", "default": "#F44336"
+    },
+    {
+      "id": "btn2_target", "key": "btn2_target", "name": "btn2_target",
+      "title": "Action / Entity", "label": "Action / Entity",
+      "description": "Choose a script, scene, light or switch entity.",
+      "group": "Button 2",
+      "type": "entity", "default": "script.desligar_tudo_teste"
+    },
+    {
+      "id": "btn2_hide", "key": "btn2_hide", "name": "btn2_hide",
+      "title": "Hide Menu on Click", "label": "Hide Menu on Click",
+      "description": "Automatically hides the bar when tapped.",
+      "group": "Button 2",
+      "type": "boolean", "default": false
+    },
+    {
+      "id": "btn3_icon", "key": "btn3_icon", "name": "btn3_icon",
+      "title": "Icon", "label": "Icon",
+      "description": "Type any MDI icon (e.g. mdi:spotify, mdi:music).",
+      "group": "Button 3",
+      "type": "string", "default": "mdi:spotify"
+    },
+    {
+      "id": "btn3_color", "key": "btn3_color", "name": "btn3_color",
+      "title": "Color", "label": "Color",
+      "group": "Button 3",
+      "type": "color", "default": "#1DB954"
+    },
+    {
+      "id": "btn3_target", "key": "btn3_target", "name": "btn3_target",
+      "title": "Action / Entity", "label": "Action / Entity",
+      "description": "Choose a script, scene, light or switch entity.",
+      "group": "Button 3",
+      "type": "entity", "default": "script.abrir_spotify_no_tablet"
+    },
+    {
+      "id": "btn3_hide", "key": "btn3_hide", "name": "btn3_hide",
+      "title": "Hide Menu on Click", "label": "Hide Menu on Click",
+      "description": "Automatically hides the bar when tapped.",
+      "group": "Button 3",
+      "type": "boolean", "default": true
+    },
+    {
+      "id": "btn4_icon", "key": "btn4_icon", "name": "btn4_icon",
+      "title": "Icon", "label": "Icon",
+      "description": "Type any MDI icon (e.g. mdi:lightbulb, mdi:fan).",
+      "group": "Button 4",
       "type": "string", "default": ""
     },
     {
-      "id": "btn5", "key": "btn5", "name": "btn5",
-      "title": "Button 5 (Icon | Color | Action | hide)", "label": "Button 5 (Icon | Color | Action | hide)",
-      "description": "Format: Icon | Color | Action [| hide]",
+      "id": "btn4_color", "key": "btn4_color", "name": "btn4_color",
+      "title": "Color", "label": "Color",
+      "group": "Button 4",
+      "type": "color", "default": "#FFC107"
+    },
+    {
+      "id": "btn4_target", "key": "btn4_target", "name": "btn4_target",
+      "title": "Action / Entity", "label": "Action / Entity",
+      "description": "Choose a script, scene, light or switch entity.",
+      "group": "Button 4",
+      "type": "entity", "default": ""
+    },
+    {
+      "id": "btn4_hide", "key": "btn4_hide", "name": "btn4_hide",
+      "title": "Hide Menu on Click", "label": "Hide Menu on Click",
+      "description": "Automatically hides the bar when tapped.",
+      "group": "Button 4",
+      "type": "boolean", "default": false
+    },
+    {
+      "id": "btn5_icon", "key": "btn5_icon", "name": "btn5_icon",
+      "title": "Icon", "label": "Icon",
+      "description": "Type any MDI icon (e.g. mdi:car, mdi:lock, mdi:power).",
+      "group": "Button 5",
       "type": "string", "default": ""
+    },
+    {
+      "id": "btn5_color", "key": "btn5_color", "name": "btn5_color",
+      "title": "Color", "label": "Color",
+      "group": "Button 5",
+      "type": "color", "default": "#03A9F4"
+    },
+    {
+      "id": "btn5_target", "key": "btn5_target", "name": "btn5_target",
+      "title": "Action / Entity", "label": "Action / Entity",
+      "description": "Choose a script, scene, light or switch entity.",
+      "group": "Button 5",
+      "type": "entity", "default": ""
+    },
+    {
+      "id": "btn5_hide", "key": "btn5_hide", "name": "btn5_hide",
+      "title": "Hide Menu on Click", "label": "Hide Menu on Click",
+      "description": "Automatically hides the bar when tapped.",
+      "group": "Button 5",
+      "type": "boolean", "default": false
     }
   ],
   "commands": [

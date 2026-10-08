@@ -111,15 +111,16 @@ public final class TopBarPlugin implements KioskPlugin {
         if (host == null) return;
         java.util.Set<String> newEntities = new java.util.HashSet<>();
         for (int i = 1; i <= 5; i++) {
-            String target = "";
+            String rawTarget = "";
             String compactVal = getSetting("btn" + i, "");
             if (!compactVal.trim().isEmpty() && compactVal.contains("|")) {
                 String[] parts = compactVal.split("\\|");
-                if (parts.length >= 3) target = parts[2].trim();
+                if (parts.length >= 3) rawTarget = parts[2].trim();
             } else {
-                target = getSetting("btn" + i + "_target", "").trim();
+                rawTarget = getSetting("btn" + i + "_target", "").trim();
             }
 
+            String target = sanitizeTarget(rawTarget);
             if (!target.isEmpty() && target.contains(".")) {
                 String domain = target.split("\\.")[0].toLowerCase();
                 if (!domain.equals("script") && !domain.equals("scene") && !domain.equals("automation")) {
@@ -253,18 +254,31 @@ public final class TopBarPlugin implements KioskPlugin {
         }
     }
 
+    private String sanitizeTarget(String target) {
+        if (target == null) return "";
+        target = target.trim();
+        if (target.isEmpty() || !target.contains(".")) return "";
+
+        String domain = target.split("\\.")[0].toLowerCase();
+        if ("script".equals(domain) || "scene".equals(domain) || "light".equals(domain) || "switch".equals(domain)) {
+            return target;
+        }
+        return "";
+    }
+
     private void fetchAndApplyEntityStates() {
         if (host == null) return;
         for (int i = 1; i <= 5; i++) {
-            String target = "";
+            String rawTarget = "";
             String compactVal = getSetting("btn" + i, "");
             if (!compactVal.trim().isEmpty() && compactVal.contains("|")) {
                 String[] parts = compactVal.split("\\|");
-                if (parts.length >= 3) target = parts[2].trim();
+                if (parts.length >= 3) rawTarget = parts[2].trim();
             } else {
-                target = getSetting("btn" + i + "_target", "").trim();
+                rawTarget = getSetting("btn" + i + "_target", "").trim();
             }
 
+            String target = sanitizeTarget(rawTarget);
             if (!target.isEmpty() && target.contains(".")) {
                 String domain = target.split("\\.")[0].toLowerCase();
                 if (!domain.equals("script") && !domain.equals("scene") && !domain.equals("automation")) {
@@ -323,21 +337,33 @@ public final class TopBarPlugin implements KioskPlugin {
         host = null;
     }
 
+    private boolean getBooleanSetting(String key, boolean defValue) {
+        if (currentSettings != null && currentSettings.containsKey(key)) {
+            Object val = currentSettings.get(key);
+            if (val instanceof Boolean) {
+                return (Boolean) val;
+            }
+            if (val != null) {
+                String str = val.toString().trim();
+                if ("true".equalsIgnoreCase(str) || "1".equalsIgnoreCase(str)) return true;
+                if ("false".equalsIgnoreCase(str) || "0".equalsIgnoreCase(str)) return false;
+            }
+        }
+        return defValue;
+    }
+
     private boolean checkShouldHide(String btnKey) {
+        if (getBooleanSetting(btnKey + "_hide", false)) {
+            return true;
+        }
         String compactVal = getSetting(btnKey, "");
         if (!compactVal.trim().isEmpty() && compactVal.contains("|")) {
             String[] parts = compactVal.split("\\|");
             if (parts.length >= 4) {
                 String opt = parts[3].trim().toLowerCase();
-                if (opt.contains("hide") || opt.contains("esconder")) {
+                if (opt.contains("hide") || opt.contains("esconder") || opt.equals("true")) {
                     return true;
                 }
-            }
-        } else {
-            String target = getSetting(btnKey + "_target", "").toLowerCase();
-            String icon = getSetting(btnKey + "_icon", "").toLowerCase();
-            if (target.contains("hide") || icon.contains("hide")) {
-                return true;
             }
         }
         return false;
@@ -514,22 +540,34 @@ public final class TopBarPlugin implements KioskPlugin {
         }
 
         // Always horizontal
-        String align = getSetting("menu_position", "Right");
-        boolean isLeft  = align.contains("Left")  || align.contains("Esquerda");
-        boolean isRight = align.contains("Right") || align.contains("Direita");
+        String align = getSetting("menu_position", "Bottom Right").toLowerCase();
 
         int gravity;
         int xOffset = 0;
         int yOffset = dpToPx(context, 30);
 
-        if (isLeft) {
-            gravity = Gravity.BOTTOM | Gravity.START;
+        // Vertical component
+        if (align.contains("top") || align.contains("topo")) {
+            gravity = Gravity.TOP;
+            yOffset = dpToPx(context, 30);
+        } else if (align.contains("middle") || align.contains("centro_v")) {
+            gravity = Gravity.CENTER_VERTICAL;
+            yOffset = 0;
+        } else { // default bottom
+            gravity = Gravity.BOTTOM;
+            yOffset = dpToPx(context, 30);
+        }
+
+        // Horizontal component
+        if (align.contains("left") || align.contains("esquerda")) {
+            gravity |= Gravity.START;
             xOffset = dpToPx(context, 12);
-        } else if (isRight) {
-            gravity = Gravity.BOTTOM | Gravity.END;
+        } else if (align.contains("right") || align.contains("direita")) {
+            gravity |= Gravity.END;
             xOffset = dpToPx(context, 12);
         } else {
-            gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+            gravity |= Gravity.CENTER_HORIZONTAL;
+            xOffset = 0;
         }
 
         // Scale

@@ -2,19 +2,21 @@
 
 **TopBar** is a lightweight, floating control bar overlay plugin designed for [Kiosk Satellite](https://github.com/jxlarrea/kiosk-satellite) on Android tablets.
 
-It seamlessly integrates with Home Assistant to display customizable action buttons that dynamically adapt their state and appearance based on real-time feedback.
+Control Bar for Home Assistant.
 
 ---
 
 ## ✨ Key Features
 
 - **Floating Overlay Control**: Stays accessible over the main kiosk interface with glassmorphism design.
-- **Home Assistant Integration**: Trigger scripts, scenes, automations, or device actions (`light`, `switch`, etc.) directly from your tablet overlay.
-- **Live State Tracking**: Stateful entities (like lights and switches) automatically change color dynamically (Active Color when ON, Muted Grey when OFF).
-- **Stateless Actions**: Scripts, scenes, and automations maintain their configured accent color.
-- **Auto-Hide & Foreground Detection**: Automatically hides when navigating to background apps or when screensaver activates, ensuring no interference with other applications.
-- **Day/Night Theme Sync**: Automatically switches between dark and light themes based on Kiosk Satellite screen/dimmer state.
-- **Customizable**: Adjustable position (Left, Center, Right), size scaling (80%, 100%, 120%), theme selection (Auto, Dark, Light), and custom MDI icons/colors for up to 5 buttons with dynamic width auto-scaling.
+- **Home Assistant Integration**: Supports `script`, `scene`, `light`, and `switch` entities.
+- **Live State Tracking**: Stateful entities (`light`, `switch`) automatically change color dynamically (Active Accent Color when ON, Muted Grey when OFF).
+- **Stateless Actions**: Scripts and scenes (`script`, `scene`) always maintain their configured accent color.
+- **Per-Button Auto-Hide**: Optionally toggle "Hide Menu on Click" per button, ideal for launching apps or full-screen views.
+- **100% Offline Icons**: Embedded Material Design Icons font for instant 0ms icon rendering without internet.
+- **Flexible Positioning**: Choose from 9 screen positions (Top, Middle, Bottom x Left, Center, Right).
+- **Day/Night Theme Sync**: Automatically switches between dark and light themes based on Kiosk Satellite / Android system state.
+- **Customizable**: Up to 5 buttons with native color picker, native HA entity search, and dynamic width auto-scaling.
 
 ---
 
@@ -28,16 +30,21 @@ It seamlessly integrates with Home Assistant to display customizable action butt
 
 ## ⚙️ Configuration
 
-In **Kiosk Satellite > Plugin Manager > TopBar**, you can configure:
+In **Kiosk Satellite > Plugin Manager > TopBar**, settings are organized into clean groups:
 
-- **Theme**: `Auto (System)`, `Dark`, or `Light`.
-- **Position**: `Right`, `Left`, or `Center`.
+### General Settings
+- **Theme**: `Auto (System / KS)`, `Dark`, or `Light`.
+- **Position**: Choose from 9 screen grid positions (`Top Left`, `Top Center`, `Top Right`, `Middle Left`, `Middle Center`, `Middle Right`, `Bottom Left`, `Bottom Center`, `Bottom Right`).
 - **Size**: `80%`, `100%`, or `120%`.
-- **Buttons (Up to 5)**: Format as `Icon | Color | Action` (optionally append `| hide` to auto-dismiss the menu).
-  - Standard (stays visible): `mdi-home-import-outline | #4CAF50 | script.ligar_casa_diogo`
-  - App Launcher (auto-hides menu): `mdi-spotify | #1DB954 | script.abrir_spotify_no_tablet | hide`
 
-> **Note:** The floating control bar automatically adjusts its width to match the exact number of active buttons configured (from 1 up to 5). Adding `| hide` at the end of a button string instantly dismisses the menu when tapped (ideal for launching apps or full-screen views).
+### Button Settings (Buttons 1 to 5)
+Each button features dedicated native controls:
+- **Icon**: Type any MDI icon name (e.g. `mdi:home`, `mdi:lightbulb`, `mdi:spotify`, `mdi:power`, `mdi:fan`, `mdi:lock`).
+- **Color**: Native visual color picker or custom Hex value.
+- **Action / Entity**: Searchable Home Assistant entity picker modal (`script`, `scene`, `light`, or `switch`).
+- **Hide Menu on Click**: Switch toggle (`ON` / `OFF`) to automatically hide the bar when tapped.
+
+> **Note:** The floating control bar automatically resizes its width to fit the exact number of active buttons configured (from 1 up to 5).
 
 ---
 
@@ -54,8 +61,7 @@ sequence:
 description: "Launches an Android application on the kiosk tablet."
 ```
 
-Then configure your TopBar button with `| hide` at the end:
-`mdi-spotify | #1DB954 | script.abrir_spotify_no_tablet | hide`
+Then in TopBar settings, select the script `script.abrir_spotify_kiosk` for your button and toggle **Hide Menu on Click** to `ON`.
 
 ---
 
